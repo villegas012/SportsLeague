@@ -21,9 +21,9 @@ namespace SportsLeague.DataAccess.Context
         public DbSet<Card> Cards => Set<Card>();
         public DbSet<Sponsor> Sponsors { get; set; }
 
-        public DbSet<TournamentSponsor>
-            TournamentSponsors
-        { get; set; }
+        public DbSet<TournamentSponsor> TournamentSponsors { get; set; }
+
+        public DbSet<MatchLineup> MatchLineups => Set<MatchLineup>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -261,6 +261,24 @@ namespace SportsLeague.DataAccess.Context
                       .HasForeignKey(g => g.PlayerId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+
+            modelBuilder.Entity<MatchLineup>()
+                .HasOne(ml => ml.Match)
+                .WithMany(m => m.MatchLineups)
+                .HasForeignKey(ml => ml.MatchId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MatchLineup>()
+                .HasOne(ml => ml.Player)
+                .WithMany(p => p.MatchLineups)
+                .HasForeignKey(ml => ml.PlayerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MatchLineup>()
+                .HasIndex(ml => new { ml.MatchId, ml.PlayerId })
+                .IsUnique();
+
 
             // ── Card Configuration ──
             modelBuilder.Entity<Card>(entity =>
